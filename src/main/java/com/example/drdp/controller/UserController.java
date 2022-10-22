@@ -4,7 +4,6 @@ package com.example.drdp.controller;
 import com.example.drdp.dto.LoginFormDTO;
 import com.example.drdp.dto.Result;
 import com.example.drdp.dto.UserDTO;
-import com.example.drdp.entity.UserInfo;
 import com.example.drdp.service.IUserInfoService;
 import com.example.drdp.service.IUserService;
 import com.example.drdp.utils.UserHolder;
@@ -29,6 +28,8 @@ public class UserController {
 
     /**
      * 发送手机验证码
+     *
+     * @param phone 手机号
      */
     @PostMapping("/code")
     public Result sendCode(@RequestParam("phone") String phone) {
@@ -49,15 +50,16 @@ public class UserController {
 
     /**
      * 登出功能
-     *
-     * @return 无
-     */
+     **/
     @PostMapping("/logout")
     public Result logout() {
         // TODO 实现登出功能
         return Result.fail("功能未完成");
     }
 
+    /**
+     * 当前登录用户信息
+     */
     @GetMapping("/me")
     public Result me() {
         // 获取当前登录的用户并返回
@@ -65,17 +67,24 @@ public class UserController {
         return Result.ok(user);
     }
 
+    /**
+     * 根据 id 查询详情
+     *
+     * @param userId 用户 id
+     */
     @GetMapping("/info/{id}")
     public Result info(@PathVariable("id") Long userId) {
-        // 查询详情
-        UserInfo info = userInfoService.getById(userId);
-        if (info == null) {
-            // 没有详情，应该是第一次查看详情
-            return Result.ok();
-        }
-        info.setCreateTime(null);
-        info.setUpdateTime(null);
-        // 返回
-        return Result.ok(info);
+        return userInfoService.queryUserInfo(userId);
     }
+
+    /**
+     * 根据用户 id 查询基本信息
+     *
+     * @param userId 用户 id
+     */
+    @GetMapping("/{id}")
+    public Result queryUserById(@PathVariable("id") Long userId) {
+        return userService.queryUserById(userId);
+    }
+
 }

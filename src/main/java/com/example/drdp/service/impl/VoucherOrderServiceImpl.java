@@ -3,6 +3,7 @@ package com.example.drdp.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.json.JSONUtil;
 import com.example.drdp.dto.Result;
+import com.example.drdp.entity.SeckillVoucher;
 import com.example.drdp.entity.VoucherOrder;
 import com.example.drdp.mapper.VoucherOrderMapper;
 import com.example.drdp.service.ISeckillVoucherService;
@@ -184,16 +185,15 @@ public class VoucherOrderServiceImpl extends ServiceImpl<VoucherOrderMapper, Vou
     @Transactional
     public void createVoucherOrder(VoucherOrder voucherOrder) {
         // 一人一单
-        if (query().eq("user_id", voucherOrder.getUserId())
-                .eq("voucher_id", voucherOrder.getVoucherId()).exists()) {
+        if (lambdaQuery().eq(VoucherOrder::getUserId, voucherOrder.getUserId())
+                .eq(VoucherOrder::getVoucherId, voucherOrder.getVoucherId()).exists()) {
             log.error("该优惠券仅限购买一次！");
             return;
         }
-
-        boolean success = seckillVoucherService.update()
+        boolean success = seckillVoucherService.lambdaUpdate()
                 .setSql("stock = stock - 1")
-                .eq("voucher_id", voucherOrder.getVoucherId())
-                .gt("stock", 0)
+                .eq(SeckillVoucher::getVoucherId, voucherOrder.getVoucherId())
+                .gt(SeckillVoucher::getStock, 0)
                 .update();
         if (!success) {
             log.error("优惠券已被抢空！");

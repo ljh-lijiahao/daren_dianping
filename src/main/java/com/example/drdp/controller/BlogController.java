@@ -1,19 +1,12 @@
 package com.example.drdp.controller;
 
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.drdp.dto.Result;
-import com.example.drdp.dto.UserDTO;
 import com.example.drdp.entity.Blog;
-import com.example.drdp.entity.User;
 import com.example.drdp.service.IBlogService;
-import com.example.drdp.service.IUserService;
-import com.example.drdp.utils.SystemConstants;
-import com.example.drdp.utils.UserHolder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.List;
 
 /**
  * 笔记控制器
@@ -35,26 +28,28 @@ public class BlogController {
 
     /**
      * 笔记点赞功能
+     *
+     * @param id 笔记的用户 id
      */
     @PutMapping("/like/{id}")
     public Result likeBlog(@PathVariable("id") Long id) {
         return blogService.likeBlog(id);
     }
 
+    /**
+     * 查看自己的笔记
+     *
+     * @param current 页数 默认值 1
+     */
     @GetMapping("/of/me")
     public Result queryMyBlog(@RequestParam(value = "current", defaultValue = "1") Integer current) {
-        // 获取登录用户
-        UserDTO user = UserHolder.getUser();
-        // 根据用户查询
-        Page<Blog> page = blogService.query()
-                .eq("user_id", user.getId()).page(new Page<>(current, SystemConstants.MAX_PAGE_SIZE));
-        // 获取当前页数据
-        List<Blog> records = page.getRecords();
-        return Result.ok(records);
+        return blogService.queryMyBlog(current);
     }
 
     /**
      * 笔记排行榜
+     *
+     * @param current 页数 默认值 1
      */
     @GetMapping("/hot")
     public Result queryHotBlog(@RequestParam(value = "current", defaultValue = "1") Integer current) {
@@ -63,6 +58,8 @@ public class BlogController {
 
     /**
      * 通过 id 查笔记
+     *
+     * @param id 笔记的用户 id
      */
     @GetMapping("/{id}")
     public Result queryBlogById(@PathVariable("id") Long id) {
@@ -71,9 +68,37 @@ public class BlogController {
 
     /**
      * 点赞排行榜
+     *
+     * @param id 笔记的用户 id
      */
     @GetMapping("/likes/{id}")
     public Result queryBlogLikes(@PathVariable("id") Long id) {
         return blogService.queryBlogLikes(id);
     }
+
+    /**
+     * 查询用户笔记
+     *
+     * @param current 页数 默认值 1
+     * @param id      用户 id
+     */
+    @GetMapping("/of/user")
+    public Result queryBlogByUserId(
+            @RequestParam(value = "current", defaultValue = "1") Integer current,
+            @RequestParam("id") Long id) {
+        return blogService.queryBlogByUserId(current, id);
+    }
+
+    /**
+     * 查看关注者的笔记
+     *
+     * @param max    上次查询的最后一个时间
+     * @param offset 偏移量
+     */
+    @GetMapping("/of/follow")
+    public Result queryBlogOfFollow(
+            @RequestParam("lastId") Long max, @RequestParam(value = "offset", defaultValue = "0") Integer offset) {
+        return blogService.queryBlogOfFollow(max, offset);
+    }
+
 }

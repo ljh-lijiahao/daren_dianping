@@ -1,12 +1,9 @@
 package com.example.drdp.utils;
 
-import cn.hutool.core.lang.TypeReference;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSON;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-import com.example.drdp.entity.Shop;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 

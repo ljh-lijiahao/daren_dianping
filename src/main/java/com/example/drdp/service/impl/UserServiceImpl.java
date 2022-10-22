@@ -51,9 +51,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         return Result.ok();
     }
 
-    /**
-     * 用户登录
-     */
     @Override
     public Result login(LoginFormDTO loginForm) {
         // 手机号格式验证
@@ -139,4 +136,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         return user;
     }
 
+    @Override
+    public Result queryUserById(Long userId) {
+        // 查询详情
+        User user = getById(userId);
+        if (user == null) {
+            return Result.ok();
+        }
+        UserDTO userDTO = BeanUtil.copyProperties(user, UserDTO.class);
+        // 返回
+        return Result.ok(userDTO);
+    }
 }

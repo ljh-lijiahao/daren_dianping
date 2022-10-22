@@ -22,7 +22,8 @@ public class RedisConstants {
 
     public static final String SECKILL_STOCK_PREFIX = "seckill:stock:";
     public static final String BLOG_LIKED_PREFIX = "blog:liked:";
-    public static final String FEED_KEY = "feed:";
+    public static final String FOLLOW_PREFIX = "follow:";
+    public static final String FEED_PREFIX = "feed:";
     public static final String SHOP_GEO_PREFIX = "shop:geo:";
     public static final String USER_SIGN_PREFIX = "sign:";
 }
