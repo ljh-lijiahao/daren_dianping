@@ -8,6 +8,7 @@ import com.example.drdp.service.IUserInfoService;
 import com.example.drdp.service.IUserService;
 import com.example.drdp.utils.UserHolder;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpRequest;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
