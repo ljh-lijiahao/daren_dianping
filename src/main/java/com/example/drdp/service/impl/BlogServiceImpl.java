@@ -16,7 +16,6 @@ import com.example.drdp.service.IFollowService;
 import com.example.drdp.service.IUserService;
 import com.example.drdp.utils.SystemConstants;
 import com.example.drdp.utils.UserHolder;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
@@ -30,7 +29,6 @@ import java.util.stream.Collectors;
 
 import static com.example.drdp.utils.RedisConstants.*;
 
-@Slf4j
 @Service
 public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements IBlogService {
 

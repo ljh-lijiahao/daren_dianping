@@ -5,6 +5,8 @@ import com.example.drdp.dto.LoginFormDTO;
 import com.example.drdp.dto.Result;
 import com.example.drdp.entity.User;
 
+import javax.servlet.http.HttpServletRequest;
+
 
 public interface IUserService extends IService<User> {
 
@@ -12,5 +14,13 @@ public interface IUserService extends IService<User> {
 
     Result login(LoginFormDTO loginForm);
 
+    Result logout(HttpServletRequest request);
+
+    Result getMe();
+
     Result queryUserById(Long userId);
+
+    Result sign();
+
+    Result signCount();
 }

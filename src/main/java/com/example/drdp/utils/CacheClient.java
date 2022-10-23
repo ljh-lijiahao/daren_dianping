@@ -49,7 +49,7 @@ public class CacheClient {
         T t = dbFallback.apply(id);
         if (t == null) {
             // 存储空值到 redis 中，防止无效的访问数据库
-            set(key, "", 2L, unit);
+            set(key, "", CACHE_NULL_TTL, unit);
             return null;
         }
         // 保存商铺信息到 redis 中
@@ -69,7 +69,7 @@ public class CacheClient {
             return null;
         }
         String lockKey = LOCK_SHOP_PREFIX + id;
-        T t = null;
+        T t;
         try {
             // 获取互斥锁
             if (!tryLock(lockKey)) {

@@ -3,6 +3,7 @@ package com.example.drdp.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.lang.UUID;
+import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.crypto.digest.DigestUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -15,12 +16,18 @@ import com.example.drdp.mapper.UserMapper;
 import com.example.drdp.service.IUserService;
 import com.example.drdp.utils.RegexUtils;
 import com.example.drdp.utils.SystemConstants;
+import com.example.drdp.utils.UserHolder;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.connection.BitFieldSubCommands;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -137,6 +144,23 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     }
 
     @Override
+    public Result logout(HttpServletRequest request) {
+        String token = request.getHeader("authorization");
+        if (token == null || token.isEmpty()) {
+            return Result.ok();
+        }
+        stringRedisTemplate.delete(LOGIN_USER_PREFIX + token);
+        return Result.ok("退出成功");
+    }
+
+    @Override
+    public Result getMe() {
+        // 获取当前登录的用户并返回
+        UserDTO user = UserHolder.getUser();
+        return Result.ok(user);
+    }
+
+    @Override
     public Result queryUserById(Long userId) {
         // 查询详情
         User user = getById(userId);
@@ -146,5 +170,45 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         UserDTO userDTO = BeanUtil.copyProperties(user, UserDTO.class);
         // 返回
         return Result.ok(userDTO);
+    }
+
+    @Override
+    public Result sign() {
+        Long userId = UserHolder.getUser().getId();
+        LocalDateTime now = LocalDateTime.now();
+        String key = USER_SIGN_PREFIX + userId + now.format(DateTimeFormatter.ofPattern(":yyyyMM"));
+        int dayOfMonth = now.getDayOfMonth();
+        if (BooleanUtil.isTrue(stringRedisTemplate.opsForValue().getBit(key, dayOfMonth - 1))) {
+            return Result.fail("您已经签到过啦~");
+        }
+        stringRedisTemplate.opsForValue().setBit(key, dayOfMonth - 1, true);
+        return Result.ok("签到成功");
+    }
+
+    @Override
+    public Result signCount() {
+        Long userId = UserHolder.getUser().getId();
+        LocalDateTime now = LocalDateTime.now();
+        String key = USER_SIGN_PREFIX + userId + now.format(DateTimeFormatter.ofPattern(":yyyyMM"));
+        int dayOfMonth = now.getDayOfMonth();
+        List<Long> resultList = stringRedisTemplate.opsForValue().bitField(key, BitFieldSubCommands.create()
+                .get(BitFieldSubCommands.BitFieldType.unsigned(dayOfMonth)).valueAt(0));
+        if (resultList == null || resultList.isEmpty()) {
+            return Result.ok(0);
+        }
+        Long num = resultList.get(0);
+        if (num == null || num == 0) {
+            return Result.ok(0);
+        }
+        int countDay = 0;
+        while (true) {
+            if ((num & 1) == 0) {
+                break;
+            } else {
+                countDay++;
+            }
+            num >>>= 1;
+        }
+        return Result.ok(countDay);
     }
 }

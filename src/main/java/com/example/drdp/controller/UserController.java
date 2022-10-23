@@ -3,15 +3,13 @@ package com.example.drdp.controller;
 
 import com.example.drdp.dto.LoginFormDTO;
 import com.example.drdp.dto.Result;
-import com.example.drdp.dto.UserDTO;
 import com.example.drdp.service.IUserInfoService;
 import com.example.drdp.service.IUserService;
-import com.example.drdp.utils.UserHolder;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpRequest;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * 用户控制器
@@ -53,9 +51,8 @@ public class UserController {
      * 登出功能
      **/
     @PostMapping("/logout")
-    public Result logout() {
-        // TODO 实现登出功能
-        return Result.fail("功能未完成");
+    public Result logout(HttpServletRequest request) {
+        return userService.logout(request);
     }
 
     /**
@@ -63,9 +60,7 @@ public class UserController {
      */
     @GetMapping("/me")
     public Result me() {
-        // 获取当前登录的用户并返回
-        UserDTO user = UserHolder.getUser();
-        return Result.ok(user);
+        return userService.getMe();
     }
 
     /**
@@ -88,4 +83,19 @@ public class UserController {
         return userService.queryUserById(userId);
     }
 
+    /**
+     * 签到
+     */
+    @PostMapping("/sign")
+    public Result sign() {
+        return userService.sign();
+    }
+
+    /**
+     * 统计本月截至今天连续签到天数
+     */
+    @GetMapping("/sign/count")
+    public Result signCount() {
+        return userService.signCount();
+    }
 }
